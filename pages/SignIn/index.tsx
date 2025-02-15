@@ -41,7 +41,6 @@ export default function AuthPage() {
 
   const handleAuth = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!agree) return alert('You must agree to the Terms and Privacy Policy.');
 
     let result;
     if (form.isSignUp) {
