@@ -4,7 +4,7 @@ import { SessionContext } from "@/lib/supabase/usercontext";
 import Button from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/component";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 interface Medicine {
   id?: number; // Optional if your DB returns an id field.
   name: string;
@@ -89,6 +89,9 @@ export default function MedicinePage() {
                 <p className="mt-1 text-gray-600 dark:text-gray-300">
                   <span className="font-medium">Duration:</span> {medicine.duration}
                 </p>
+                <Button>
+                  <Link href={`/Buy?name=${medicine.name}&pin=null`}>Buy now</Link>
+                </Button>
                 <div className="mt-4">
                   <Button>View Details</Button>
                 </div>
