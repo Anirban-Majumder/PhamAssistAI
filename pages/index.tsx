@@ -12,7 +12,7 @@ export default function Home() {
           appointment scheduling, and personalized health tracking.
         </p>
         <Button>
-          <Link href="/dashboard">Get Started</Link>
+          <Link href="/signup">Get Started</Link>
         </Button>
       </div>
     </Layout>
