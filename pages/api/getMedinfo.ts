@@ -43,21 +43,10 @@ export default async function handler(
       return res.status(404).json({ error: "No matching variant found" });
     }
 
-    const variantId = algoliaData.hits[0].id;
-    const crmResponse = await fetch(
-      `https://crm.frankrosspharmacy.com/api/v8/customer/cities/13/web/variants/${variantId}`
-    );
-
-    if (!crmResponse.ok) {
-      return res.status(crmResponse.status).json({
-        error: `Error fetching variant details from CRM: ${crmResponse.statusText}`,
-      });
+    return res.status(200).json(algoliaData);
     }
-
-    const crmData = await crmResponse.json();
-    return res.status(200).json(crmData);
-  } catch (error) {
-    console.error("Error processing request:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
+    catch (error) {
+        console.error("Error processing request:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
 }

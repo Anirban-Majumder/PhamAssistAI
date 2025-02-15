@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = any; // Replace with a more specific type if needed.
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");

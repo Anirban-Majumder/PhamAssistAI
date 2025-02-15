@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useContext, useEffect, useCallback } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/component";
 import { SessionContext } from "@/lib/supabase/usercontext";
+import { Input } from "@/components/ui/input";
 
 export default function ImageUpload() {
   const supabase = createClient();
@@ -17,7 +18,12 @@ export default function ImageUpload() {
   const [medicineName, setMedicineName] = useState("");
   const [duration, setDuration] = useState("");
   const [time, setTime] = useState("");
+  const [idmed, setIdmed] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null)
+  const skipFetchSuggestions = useRef(false)
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,9 +103,73 @@ export default function ImageUpload() {
     }
   };
 
+  const fetchSuggestions = useCallback(async (search: string) => {
+    if (!search) {
+      setSuggestions([])
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/getMedinfo?name=${encodeURIComponent(search)}`)
+      const data = await response.json()
+      setSuggestions(data.hits)
+      setShowSuggestions(true)
+    } catch (error) {
+      console.error("Failed to fetch suggestions:", error)
+      setSuggestions([])
+    }
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    if (skipFetchSuggestions.current) {
+      skipFetchSuggestions.current = false
+      return
+    }
+
+    const debounceTimer = setTimeout(() => {
+      fetchSuggestions(medicineName)
+    }, 300)
+
+    return () => clearTimeout(debounceTimer)
+  }, [medicineName, fetchSuggestions])
+
   const handleDataSave = async () => {
+    if (!medicineName || !duration || !time) return;
+    if (!session?.user?.id) {
+      console.error("User session not found.");
+      return;
+    }
+    const { data: updateData, error: updateError } = await supabase
+      .from("medicine")
+      .insert({
+        user_id: session.user.id,
+        name: medicineName,
+        duration: duration,
+        dosage: time,
+        idmed: idmed,
+      })
+      .eq("user_id", session.user.id);
+
+    if (updateError) {
+      console.error("Error updating meds:", updateError);
+    } else {
+      console.log("Updates meds successfully:", updateData);
+    }
+
     setIsManualOpen(false);
     setIsOpen(false);
+    router.push("/Profile");
   };
 
   const handleSave = async () => {
@@ -191,7 +261,7 @@ export default function ImageUpload() {
 
       {/* Manual Entry Modal */}
       {isManualOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="fixed inset-0 text-base bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Enter Medicine Details</h2>
@@ -204,15 +274,46 @@ export default function ImageUpload() {
             </div>
 
             <div className="flex flex-col space-y-4">
-              <input
-                type="text"
-                placeholder="Medicine Name"
-                value={medicineName}
-                onChange={(e) => setMedicineName(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2"
-              />
+              <div className="relative flex-1" ref={searchRef}>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="Medicine Name"
+                    value={medicineName}
+                    onChange={(e) => setMedicineName(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    className="border border-gray-300 rounded-lg px-4 py-2"
+                  />
+                </div>
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                    <div className="p-1">
+                      {suggestions.length === 0 ? (
+                        <div className="px-2 py-1 text-sm text-muted-foreground">
+                          No results found
+                        </div>
+                      ) : (
+                        suggestions.map((suggestion) => (
+                          <div
+                            key={suggestion.name}
+                            className="px-2 py-1.5 hover:bg-muted rounded-sm cursor-pointer"
+                            onClick={() => {
+                              skipFetchSuggestions.current = true
+                              setMedicineName(suggestion.name)
+                              setShowSuggestions(false)
+                              setIdmed(suggestion.id)
+                            }}
+                          >
+                            <div className="text-sm font-medium">{suggestion.name}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-              <input
+              <Input
                 type="text"
                 placeholder="Duration (e.g., 7 days)"
                 value={duration}
@@ -220,7 +321,7 @@ export default function ImageUpload() {
                 className="border border-gray-300 rounded-lg px-4 py-2"
               />
 
-              <input
+              <Input
                 type="text"
                 placeholder="Time (e.g., Morning, Night)"
                 value={time}
