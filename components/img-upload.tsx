@@ -77,6 +77,11 @@ export default function ImageUpload() {
       console.error("Error updating profile with new prescription:", updateError);
     } else {
       console.log("File uploaded and profile updated successfully:", updateData);
+      setImage(null);
+      setSelectedFile(null);
+      setIsOpen(false);
+      setIsManualOpen(false);
+      window.location.reload();
     }
   }
 
@@ -169,13 +174,13 @@ export default function ImageUpload() {
 
     setIsManualOpen(false);
     setIsOpen(false);
-    router.push("/Profile");
+    window.location.reload();
   };
 
   const handleSave = async () => {
     if (!selectedFile) return;
     await uploadToPrescriptionBucket(selectedFile);
-    router.push("/Profile");
+    window.location.reload();
   };
 
   return (

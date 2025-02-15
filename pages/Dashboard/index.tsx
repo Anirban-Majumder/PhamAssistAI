@@ -5,11 +5,20 @@ import { createClient } from "@/lib/supabase/component";
 import { SessionContext } from "@/lib/supabase/usercontext";
 import ImageUpload from "@/components/img-upload";
 
+interface Medicine {
+  id?: number; // Optional if your DB returns an id field.
+  name: string;
+  dosage: string;
+  duration: string;
+}
+
 export default function Dashboard() {
   const supabase = createClient();
   const session = useContext(SessionContext);
   const router = useRouter();
   const [firstName, setFirstName] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [medicines, setMedicines] = useState<Medicine[]>([]);
 
   useEffect(() => {
     const fetchUserFirstName = async () => {
@@ -82,8 +91,28 @@ export default function Dashboard() {
           }
         }
       };
+      const fetchMeds = async () => {
+        setIsLoading(true);
+        try {
+          const { data, error } = await supabase
+            .from("medicine")
+            .select("*")
+            .eq("user_id", session?.user?.id);
+  
+          if (error || !data) {
+            console.error("Error fetching medicines:", error);
+          } else {
+            setMedicines(data);
+          }
+        } catch (err) {
+          console.error("Unexpected error:", err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
       setUserFirstName();
+      fetchMeds();
     }
   }, [firstName, session, supabase]);
 
@@ -94,65 +123,44 @@ export default function Dashboard() {
           Welcome to the Dashboard, {firstName}!
         </h1>
 
-      <div className="flex justify-center mb-6 w-full max-w-sm">
-        <div className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full">
-          <span>Upload your Prescription</span>
-          <ImageUpload />
-        </div>
-      </div>
+        <div className="flex justify-center mb-6 w-full max-w-sm relative">
+  <div className="group relative">
+    <ImageUpload />
+    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm rounded shadow-lg 
+      bg-gray-200 text-black dark:bg-gray-800 dark:text-white 
+      opacity-0 group-hover:opacity-100 transition-opacity">
+      Upload Medicine
+    </span>
+  </div>
+</div>
 
       <div className="flex items-center mb-4 gap-2 w-full max-w-sm">
         <div className="flex items-center bg-purple-600 text-white px-3 py-2 rounded w-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2a6.002 6.002 0 00-5.995 5.775L6 8v.075l-.928 1.91A3 3 0 006 13h12a3 3 0 00.928-5.015L18 8.075V8a6 6 0 00-6-6z" />
-            <path
-              fillRule="evenodd"
-              d="M3 13a1 1 0 011-1h16a1 1 0 011 1v4a5 5 0 01-5 5H8a5 5 0 01-5-5v-4zm5 4a1 1 0 100 2h8a1 1 0 100-2H8z"
-              clipRule="evenodd"
-            />
-          </svg>
           <span>Medicine Tracker</span>
         </div>
       </div>
 
-      <div className="w-full max-w-sm bg-green-900 text-white p-4 rounded shadow-md">
+      <div className="w-full max-w-2xl bg-zinc-200 text-black dark:bg-zinc-800 dark:text-white p-4 shadow-md">
         <h2 className="text-xl font-semibold mb-2">Medicine Reminder</h2>
-        <p className="text-sm mb-2">Upcoming Doses:</p>
-        <ul className="space-y-2">
-          <li className="flex items-center gap-2">
-            <span className="font-medium">Tab Asomex</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-yellow-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 2v2m0 16v2m8-8h-2M4 12H2m15.364-5.364l-1.414 1.414M6.05 17.95l-1.414 1.414M17.95 17.95l1.414 1.414M6.05 6.05l-1.414 1.414"
-              />
-            </svg>
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="font-medium">Capsule Cilacar 10</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-blue-200"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M17.293 13.59A8 8 0 016.41 2.707a7 7 0 109.883 9.882z" />
-            </svg>
-          </li>
-        </ul>
+        {medicines.length === 0 ? (
+                  <p className="text-zinc-600 dark:text-zinc-300">
+                    No upcoming doses!
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {medicines.map((medicine) => (
+                      <div
+                      key={medicine.id || medicine.name}
+                      className="flex justify-between items-center px-4 py-2 rounded-lg border-b border-zinc-300 dark:border-zinc-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100">
+                      <h2 className="text-lg font-bold">{medicine.name}</h2>
+                      <p className="text-zinc-600 dark:text-zinc-300">{medicine.dosage}</p>
+                    </div>
+                    
+                    
+                    ))}
+                  </div>
+                )}
+        
       </div>
     </div>
     </Layout>

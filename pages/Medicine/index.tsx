@@ -39,7 +39,6 @@ export default function MedicineSearch() {
   const skipFetchSuggestions = useRef(false)
 
   const fetchPinFromCoords = async (lat: number, lon: number) => {
-    console.log(`Latitude: ${lat}, Longitude: ${lon}`);
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
