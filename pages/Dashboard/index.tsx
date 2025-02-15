@@ -36,7 +36,7 @@ export default function Dashboard() {
       body: JSON.stringify({ image }),
     });
     if (response.ok) {
-      alert("Image uploaded successfully!");
+      router.push("/Medicine");
     } else {
       alert("Failed to upload image.");
     }
