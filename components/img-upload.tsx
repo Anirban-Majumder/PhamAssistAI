@@ -1,45 +1,54 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Icon } from "@iconify/react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
+import { useState, useRef } from "react";
+import { Icon } from "@iconify/react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function ImageUpload() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [image, setImage] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false);
+  const [isManualOpen, setIsManualOpen] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
+  const [medicineName, setMedicineName] = useState("");
+  const [duration, setDuration] = useState("");
+  const [time, setTime] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader()
-      reader.onload = (e) => setImage(e.target?.result as string)
-      reader.readAsDataURL(file)
+      const reader = new FileReader();
+      reader.onload = (e) => setImage(e.target?.result as string);
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleCameraCapture = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      const video = document.createElement("video")
-      video.srcObject = stream
-      await video.play()
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
 
-      const canvas = document.createElement("canvas")
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      canvas.getContext("2d")?.drawImage(video, 0, 0)
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d")?.drawImage(video, 0, 0);
 
-      const capturedImage = canvas.toDataURL("image/jpeg")
-      setImage(capturedImage)
+      const capturedImage = canvas.toDataURL("image/jpeg");
+      setImage(capturedImage);
 
-      stream.getTracks().forEach((track) => track.stop())
+      stream.getTracks().forEach((track) => track.stop());
     } catch (error) {
-      console.error("Error accessing camera:", error)
+      console.error("Error accessing camera:", error);
     }
-  }
+  };
+
+  const handleDataSave = async () => {
+    setIsManualOpen(false);
+    setIsOpen(false);
+  };
 
   const handleSave = async () => {
     if (!image) return
@@ -49,9 +58,9 @@ export default function ImageUpload() {
       body: JSON.stringify({ image }),
     })
     if (response.ok) {
-      router.push("/Medicine")
+      router.push("/Profile");
     }
-  }
+  };
 
   return (
     <>
@@ -65,12 +74,11 @@ export default function ImageUpload() {
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Add Image</h2>
+            <div className="flex justify-end items-center mb-4">
               <button
                 onClick={() => {
-                  setIsOpen(false)
-                  setImage(null)
+                  setIsOpen(false);
+                  setImage(null);
                 }}
                 className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
               >
@@ -96,6 +104,14 @@ export default function ImageUpload() {
                   <span>Upload Image</span>
                 </button>
 
+                <button
+                  onClick={() => setIsManualOpen(true)}
+                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-lg px-4 py-2 flex items-center justify-center space-x-2 transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
+                >
+                  <Icon icon="mdi:pencil" className="w-5 h-5" />
+                  <span>Enter Manually</span>
+                </button>
+
                 <input type="file" accept="image/*" onChange={handleFileChange} ref={fileInputRef} className="hidden" />
               </div>
             ) : (
@@ -105,7 +121,7 @@ export default function ImageUpload() {
                 </div>
                 <div className="flex justify-center space-x-4">
                   <button
-                    onClick={handleSave}
+                  onClick={handleSave}
                     className="bg-success text-success-foreground hover:bg-success/90 rounded-lg px-4 py-2 transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-success focus:ring-opacity-50"
                   >
                     Save
@@ -122,6 +138,56 @@ export default function ImageUpload() {
           </div>
         </div>
       )}
+
+      {/* Manual Entry Modal */}
+      {isManualOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Enter Medicine Details</h2>
+              <button
+                onClick={() => setIsManualOpen(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
+              >
+                <Icon icon="mdi:close" className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="flex flex-col space-y-4">
+              <input
+                type="text"
+                placeholder="Medicine Name"
+                value={medicineName}
+                onChange={(e) => setMedicineName(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-2"
+              />
+
+              <input
+                type="text"
+                placeholder="Duration (e.g., 7 days)"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-2"
+              />
+
+              <input
+                type="text"
+                placeholder="Time (e.g., Morning, Night)"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-2"
+              />
+
+              <button
+                onClick={handleDataSave}
+                className="bg-pink-600 text-white hover:bg-pink-800 rounded-lg px-4 py-2"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
-  )
+  );
 }
