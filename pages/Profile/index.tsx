@@ -48,7 +48,7 @@ export default function MedicalProfile() {
   
         else {
           const { data, error } = await supabase
-            .from("profiles")
+            .from("profile")
             .select("first_name,last_name,phone,email_address")
             .eq("id", session.user.id)
             .single();

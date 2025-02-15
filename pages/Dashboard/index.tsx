@@ -26,9 +26,9 @@ export default function Dashboard() {
           return;
         }
       } else {
-        // Otherwise, fetch from 'profiles' table
+        // Otherwise, fetch from 'profile' table
         const { data, error } = await supabase
-          .from("profiles")
+          .from("profile")
           .select("first_name")
           .eq("id", session.user.id)
           .single();
@@ -60,7 +60,6 @@ export default function Dashboard() {
           Welcome to the Dashboard, {firstName}!
         </h1>
 
-        {/* Upload Prescription Button */}
       <div className="flex justify-center mb-6 w-full max-w-sm">
         <div className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full">
           <span>Upload your Prescription</span>
@@ -68,7 +67,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Medicine Tracker Header */}
       <div className="flex items-center mb-4 gap-2 w-full max-w-sm">
         <div className="flex items-center bg-purple-600 text-white px-3 py-2 rounded w-full">
           <svg
@@ -88,7 +86,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Medicine Reminder */}
       <div className="w-full max-w-sm bg-green-900 text-white p-4 rounded shadow-md">
         <h2 className="text-xl font-semibold mb-2">Medicine Reminder</h2>
         <p className="text-sm mb-2">Upcoming Doses:</p>
