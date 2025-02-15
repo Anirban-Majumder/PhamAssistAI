@@ -35,7 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       icon: (
         <IconPill className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/medicine",
+      href: "/Medicine",
     },
     {
       title: "Dashboard",

@@ -1,15 +1,18 @@
 import React from 'react';
 
-interface ButtonProps {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  onClick?: () => void;
+  className?: string;
 }
 
-export default function Button({ children, onClick }: ButtonProps) {
+const Button: React.FC<ButtonProps> = ({ children, className = '', ...props }) => {
   return (
     <button
-      className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-4 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
-      onClick={onClick}
+      {...props}
+      className={`
+        relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-4 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50
+        ${className}
+      `}
     >
       <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
       <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
@@ -18,3 +21,5 @@ export default function Button({ children, onClick }: ButtonProps) {
     </button>
   );
 }
+
+export default Button;
