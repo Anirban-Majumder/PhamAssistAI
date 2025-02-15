@@ -7,6 +7,7 @@ import { Layout } from '@/components/layout';
 interface FormState {
   email: string;
   password: string;
+  name: string;
   isSignUp: boolean;
 }
 
@@ -15,7 +16,7 @@ export default function AuthPage() {
   const supabase = createClient();
 
   const [isVisible, setIsVisible] = useState(false);
-  const [form, setForm] = useState<FormState>({ email: '', password: '', isSignUp: false });
+  const [form, setForm] = useState<FormState>({ email: '', password: '', name:'', isSignUp: false });
   const [agree, setAgree] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -31,7 +32,7 @@ export default function AuthPage() {
 
     let result;
     if (form.isSignUp) {
-      result = await supabase.auth.signUp({ email: form.email, password: form.password });
+      result = await supabase.auth.signUp({email: form.email, password: form.password, options:{ data: {name: form.name}}});
     } else {
       result = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
     }
@@ -54,16 +55,28 @@ export default function AuthPage() {
 
   return (
     <Layout>
-      <div className="flex items-center justify-center pb-16 min-h-screen">
-        <div className="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-lg dark:bg-zinc-800">
+      <div className="flex items-center justify-center pb-64 min-h-screen">
+        <div className="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-2xl dark:bg-zinc-800">
           <div className="text-center">
             <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
               {form.isSignUp ? 'Create an Account' : 'Sign in to your account'}
             </h1>
           </div>
           <form onSubmit={handleAuth} className="space-y-4">
+          {form.isSignUp ? <div>
+              <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">Name <span className="text-red-500">*</span></label>
+              <input
+                type="name"
+                name="name"
+                placeholder="Enter your full name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-1 mt-1 border rounded-2xl dark:bg-zinc-700 dark:text-white focus:ring focus:ring-teal-500"
+              />
+            </div>:''}
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Email Address</label>
+              <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">Email Address <span className="text-red-500">*</span></label>
               <input
                 type="email"
                 name="email"
@@ -71,11 +84,11 @@ export default function AuthPage() {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 mt-1 border rounded-lg dark:bg-zinc-700 dark:text-white focus:ring focus:ring-blue-300"
+                className={form.isSignUp? "w-full px-4 py-1 mt-1 border rounded-2xl dark:bg-zinc-700 dark:text-white focus:ring focus:ring-teal-500":"w-full px-4 py-2 mt-1 border rounded-2xl dark:bg-zinc-700 dark:text-white focus:ring focus:ring-teal-500"}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Password</label>
+              <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">Password <span className="text-red-500">*</span></label>
               <div className="relative">
                 <input
                   type={isVisible ? 'text' : 'password'}
@@ -84,7 +97,7 @@ export default function AuthPage() {
                   value={form.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-zinc-700 dark:text-white focus:ring focus:ring-blue-300"
+                  className={form.isSignUp? "w-full px-4 py-1 mt-1 border rounded-2xl dark:bg-zinc-700 dark:text-white focus:ring focus:ring-teal-500":"w-full px-4 py-2 mt-1 border rounded-2xl dark:bg-zinc-700 dark:text-white focus:ring focus:ring-teal-500"}
                 />
                 <button type="button" onClick={toggleVisibility} className="absolute inset-y-0 right-3 flex items-center">
                   <Icon icon={isVisible ? 'solar:eye-closed-linear' : 'solar:eye-bold'} className="text-zinc-500 dark:text-zinc-300" />
@@ -93,6 +106,7 @@ export default function AuthPage() {
             </div>
             <div className="flex items-center space-x-2">
               <input
+                required
                 type="checkbox"
                 checked={agree}
                 onChange={() => setAgree(!agree)}
@@ -100,11 +114,11 @@ export default function AuthPage() {
               />
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 I agree to the
-                <a href="/terms" className="text-blue-500 hover:underline"> Terms</a> &amp;
-                <a href="/privacy" className="text-blue-500 hover:underline"> Privacy Policy</a>
+                <a href="/terms" className="text-teal-500 hover:underline"> Terms</a> &amp;
+                <a href="/privacy" className="text-teal-500 hover:underline"> Privacy Policy</a>
               </span>
             </div>
-            <button type="submit" className="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+            <button type="submit" className="w-full px-4 py-2 text-white bg-pink-500 dark:bg-pink-600 rounded-full hover:bg-pink-600 dark:hover:bg-pink-700">
               {form.isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
           </form>
@@ -113,12 +127,12 @@ export default function AuthPage() {
             <span className="px-2 text-sm text-zinc-500 dark:text-zinc-400">OR</span>
             <hr className="w-full border-zinc-300 dark:border-zinc-600" />
           </div>
-          <button onClick={handleGoogleLogin} className="flex items-center justify-center w-full px-4 py-2 border rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700">
+          <button onClick={handleGoogleLogin} className="flex items-center justify-center w-full px-4 py-2 border rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700">
             <Icon icon="flat-color-icons:google" width={24} className="mr-2" /> Continue with Google
           </button>
-          <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-center text-sm text-zinc-400">
             {form.isSignUp ? 'Already have an account?' : 'Need to create an account?'}
-            <button onClick={toggleMode} className="text-blue-500 hover:underline ml-1">
+            <button onClick={toggleMode} className="text-teal-400 hover:underline ml-1">
               {form.isSignUp ? 'Sign In' : 'Sign Up'}
             </button>
           </p>
