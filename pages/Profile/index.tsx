@@ -12,6 +12,13 @@ import Link from "next/link";
 import { SessionContext } from "@/lib/supabase/usercontext";
 import { ImageIcon, ChevronRight, User } from "lucide-react";
 
+interface Medicine {
+  id?: number; // Optional if your DB returns an id field.
+  name: string;
+  dosage: string;
+  duration: string;
+}
+
 export default function MedicalProfile() {
   const supabase = createClient();
     const session = useContext(SessionContext);
@@ -22,18 +29,9 @@ export default function MedicalProfile() {
     const [phno, setphno] = useState<string | null>(null);
     const [email, setemail] = useState<string | null>(null);
 
-    interface Medicine {
-      id?: number; // Optional if your DB returns an id field.
-      name: string;
-      dosage: string;
-      duration: string;
-    }
-
-    if(!session)
-      router.push('/SignIn');
-  
     useEffect(() => {
       const fetchUserName = async () => {
+        
         if (!session?.user?.id) {              
           setName("User"); 
           return;
@@ -99,33 +97,33 @@ export default function MedicalProfile() {
 
   return (
     <Layout>
-    <div className="w-full h-screen pb-20 overflow-auto p-6 bg-zinc-900">
+    <div className="w-full h-screen pb-20 overflow-auto p-6">
       <div className="flex flex-col items-center mb-6">
         <div className="w-24 h-24 rounded-full bg-pink-700 flex items-center justify-center mb-2">
         <span className="text-6xl text-white font-bold">
               {Name?.charAt(0)}
             </span>
         </div>
-        <h1 className="text-xl font-semibold">{Name}</h1>
+        <h1 className="text-3xl font-semibold">{Name}</h1>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 w-full p-4 bg-black">
-        <div className="md:col-span-2 w-full space-y-4">
+      <div className="pb-20 grid md:grid-cols-3 gap-6 w-full p-4 rounded-xl border border-gray-500">
+        <div className="md:col-span-2 w-full space-y-4 border-r border-gray-400">
         {/* Contact Information */}
         <div className="space-y-4">
-          <h2 className="font-semibold">Contact Information:</h2>
+          <h2 className="text-xl font-semibold">Contact Information:</h2>
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone:</Label>
+            <Label className="text-xl">Phone:</Label>
             <div className="text-l">{phno}</div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email:</Label>
+            <Label className="text-xl">Email:</Label>
             <div className="text-l">{email}</div>
           </div>
 
         {/* Medicines */}
         <div className="space-y-2">
-            <h2 className="font-semibold">Medicines:</h2>
+            <h2 className="text-xl font-semibold">Medicines:</h2>
 
         {isLoading ? (
           // Loading skeletons
@@ -178,28 +176,26 @@ export default function MedicalProfile() {
   
         {/* Prescriptions */}
         <div className="space-y-2">
-          <h3 className="font-semibold">Prescriptions: <ImageUpload /></h3>
-          <div className="flex gap-2 overflow-auto">
-            <div className="w-40 h-60 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <ImageIcon className="h-8 w-8 text-gray-400" />
-            </div>
-            <div className="w-40 h-60 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <ImageIcon className="h-8 w-8 text-gray-400" />
-            </div>
-            <div className="w-40 h-60 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <ImageIcon className="h-8 w-8 text-gray-400" />
-            </div>
-            <Button variant="ghost" size="icon" className="h-30 w-8">
-              <ChevronRight className="h-6 w-6" />
-            </Button>
+          <h3 className="text-xl font-semibold">Prescriptions: <ImageUpload /></h3>
+          <div
+        className="flex gap-2 overflow-x-auto scroll-smooth scrollbar-hide w-full"
+      >
+        {[...Array(5)].map((_, index) => (
+          <div
+            key={index}
+            className="w-40 h-60 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center flex-shrink-0"
+          >
+            <ImageIcon className="h-8 w-8 text-gray-400" />
           </div>
+        ))}
+      </div>
         </div>
       </div>
   
       {/* Symptoms */}
-      <div className="p-4 bg-black">
+      <div className="space-y-4 text-xl">
         <div className="md:col-span-1 w-full space-y-4">
-        <h3 className="font-semibold">Symptoms</h3>
+        <h3 className="font-semibold">Symptoms:</h3>
         <div className="border-b border-gray-200 py-2">--</div>
         <div className="border-b border-gray-200 py-2">--</div>
         <div className="border-b border-gray-200 py-2">--</div>
