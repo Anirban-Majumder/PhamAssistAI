@@ -3,6 +3,7 @@
 import { useEffect, useState, useContext } from "react";
 import { useRouter } from "next/router";
 import ImageUpload from "@/components/img-upload";
+import Symptom from "@/components/symptom-upload";
 import { createClient } from "@/lib/supabase/component";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -198,7 +199,7 @@ export default function MedicalProfile() {
           {/* Symptoms */}
           <div className="space-y-4 text-xl">
             <div className="md:col-span-1 w-full space-y-4">
-              <h3 className="font-semibold">Symptoms:</h3>
+              <h3 className="font-semibold">Symptoms: <Symptom/></h3>
               <ul className="list-disc list-inside">
                 {symptoms.map((symptom: string, index: number) => (
                   <li key={index}>{symptom}</li>
