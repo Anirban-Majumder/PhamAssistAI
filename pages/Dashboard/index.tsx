@@ -19,23 +19,24 @@ export default function Dashboard() {
       }
 
       if (session.user.app_metadata.provider === "google") {
-        const { data, error } = await supabase
-          .from('identities')
-          .select(`
-    display_name:identity_data->>name,
-    ...users!inner()
-  `)
-          .eq('users.id', session.user.id);
-        console.log('Display Name:', data);
-      } else {
+        const googleDisplayName = session.user.user_metadata?.full_name.split(' ')[0]; 
+        if (googleDisplayName) {
+          setFirstName(googleDisplayName);
+          return;
+        }
+      } 
+
+      else {
         const { data, error } = await supabase
           .from("profiles")
           .select("first_name")
           .eq("id", session.user.id)
           .single();
-        if (error) {
-          console.warn("No profile found, using email prefix:", error?.message);
-        } else {
+          if (error || !data) {
+            console.warn("No profile found, using email prefix:", error?.message);
+            setFirstName("User"); 
+          } 
+          else {
           setFirstName(data.first_name);
         }
       }
