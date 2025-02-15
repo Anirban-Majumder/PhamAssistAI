@@ -88,3 +88,102 @@ export interface LabResult {
   objectID: string,
   _highlightResult: LabResultHighlight,
 }
+
+//new
+interface Test {
+  itemId: string;
+  itemName: string;
+  type: string;
+  description: string;
+  fasting: string;
+  url: string;
+  testCount: number;
+  category: string;
+  testPreparation: string;
+  testSample: string;
+  whenToGetTested: string;
+  imageUrl: string | null;
+  commonQuestions: {
+    title: string;
+    text: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
+  testRequirements: {
+    title: string;
+    requirements: string[];
+  };
+  child: any[];
+  howItWorks: {
+    title: string;
+    text: string;
+  };
+  idealFor: string;
+  typeId: number;
+  healthcategory: string;
+  popularsection: string;
+  testType: string;
+  report: string;
+}
+
+interface Accreditation {
+  logo: string;
+  name: string;
+  description: string;
+}
+
+interface LabAddress {
+  city: string;
+  state: string;
+  street: string;
+  pincode: string;
+  locality: string;
+}
+
+interface LabDescription {
+  id: number;
+  accreditation: Accreditation[];
+  labName: string;
+  labAddress: LabAddress[];
+  labImages?: string[] | null;
+  logo: string;
+  rating: string;
+  rating_count: number;
+  reviews: string | null;
+  isActive: boolean;
+  description: string;
+  short_Details?: string | null;
+  report: string;
+  extras?: {
+    tags?: {
+      text: string;
+      imgUrl: string;
+      status: boolean;
+    }[];
+  };
+  order?: number | null;
+  slider?: boolean | null;
+  banners?: { url: string; order: number }[] | null;
+}
+
+interface PriceDescription {
+  hc: number;
+  offered_price: number;
+  final_price: number;
+  discount_amount: number;
+  discount_percent: number;
+  discount_percent_info: string;
+  discount_amount_info: string;
+}
+
+interface Lab {
+  priceDescription: PriceDescription;
+  labDescription: LabDescription;
+}
+
+export interface DiagnosticData {
+  tests: Test[];
+  labs: Lab[];
+  labsCount: number;
+}

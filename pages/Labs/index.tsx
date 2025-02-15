@@ -21,15 +21,17 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { MapPin, SlidersHorizontal } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { DiagnosticData } from "@/lib/types"
 import type { LabResult } from "@/lib/types"
 import { SearchSkeleton } from "@/components/search-skeleton"
 import { Layout } from "@/components/layout"
+import { TestDetails } from "@/components/test-details";
+
 
 export default function Labsearch() {
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<LabResult[]>([])
-  const [tests, setTests] = useState<any[]>([])
+  const [testData, setTestData] = useState<DiagnosticData>()
   const [loading, setLoading] = useState(false)
   const [priceRange, setPriceRange] = useState([0, 5000])
   const [inStock, setInStock] = useState(true)
@@ -72,12 +74,12 @@ export default function Labsearch() {
     async (search: string) => {
     setLoading(true)
     try {
-        const response = await fetch(`/api/labSearch?name=${encodeURIComponent(search)}`)
+        const response = await fetch(`/api/labDetails?name=${encodeURIComponent(search)}&pin=${pin}`)
         const data = await response.json()
-        setTests(data.results[0].hits)
+        setTestData(data)
     } catch (error) {
         console.error("Failed to fetch lab tests:", error)
-        setTests([])
+        setTestData(undefined)
     }
     setLoading(false)
   }, [])
@@ -97,9 +99,6 @@ export default function Labsearch() {
   }, [query, fetchSuggestions])
 
 
-  const filteredTests = tests.filter(
-    (med) => parseFloat(med.finalCharge) >= priceRange[0] && parseFloat(med.finalCharge) <= priceRange[1]
-  )
 
   return (
     <Layout>
@@ -133,7 +132,7 @@ export default function Labsearch() {
                           skipFetchSuggestions.current = true
                           setQuery(suggestion.itemName)
                           setShowSuggestions(false)
-                          displayLabTests(suggestion.itemName)
+                          displayLabTests(suggestion.url)
                         }}
                       >
                         <div className="text-sm font-medium">{suggestion.itemName}</div>
@@ -196,81 +195,7 @@ export default function Labsearch() {
         {loading ? (
           <SearchSkeleton />
         ) : (
-          tests.length > 0 && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {["Cheapest", "Fastest"].map((type, index) => {
-                  const med = tests[index]
-                  if (!med) return null
-                  return (
-                    <Card key={type} className={cn("relative overflow-hidden", type === "Best" && "border-primary")}>
-                        <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-1 text-xs">
-                        {type}
-                        </div>
-                      <CardHeader>
-                        <CardTitle className="flex justify-between">
-                          <span>₹{med.finalCharge}</span>
-                          <span className="text-sm text-muted-foreground">{med.deliveryTime}</span>
-                        </CardTitle>
-                      </CardHeader>
-                    </Card>
-                  )
-                })}
-              </div>
-
-              <div className="space-y-4">
-                {filteredTests.map((labTest) => (
-                  <Card key={labTest.link}>
-                    <CardContent className="p-6">
-                      <div className="flex gap-6">
-                        <div className="w-32 h-32 bg-muted rounded-lg overflow-hidden">
-                          <img
-                            src={labTest.imgLink || "/placeholder.svg"}
-                            alt={labTest.name }
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 space-y-4">
-                            <div className="space-y-1">
-                            <div className="flex justify-between">
-                                <span>
-                            <h3 className="text-lg font-semibold">{labTest.item }</h3>
-                            <p className="text-sm text-muted-foreground">Pharmacy: {labTest.name}</p>
-                            </span>
-                            <span>{labTest.deliveryTime}</span>
-                            </div>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex justify-between">
-                              <span>labTest Price</span>
-                              <span>₹{labTest.price}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Delivery Price</span>
-                              <span>₹{labTest.deliveryCharge}</span>
-                            </div>
-                            <div className="flex justify-between font-semibold">
-                              <span>Cart Total</span>
-                              <span>₹{labTest.finalCharge}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="bg-muted/50">
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          <span className="text-sm">{labTest.lson}</span>
-                        </div>
-                        <Button onClick={() => window.open(labTest.link, '_blank')}>Buy Now</Button>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )
+          <TestDetails data={testData} />
         )}
       </div>
     </Layout>
