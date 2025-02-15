@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Layout } from "@/components/layout";
 import { SessionContext } from "@/lib/supabase/usercontext";
 import Button from "@/components/ui/button";
+import ImageUpload from "@/components/img-upload";
 import { createClient } from "@/lib/supabase/component";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -52,6 +53,7 @@ export default function MedicinePage() {
         <h1 className="text-3xl font-semibold mb-6 text-gray-800 dark:text-gray-100">
           My Medicines
         </h1>
+        <ImageUpload />
 
         {isLoading ? (
           // Loading skeletons
