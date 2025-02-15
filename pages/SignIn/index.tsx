@@ -7,7 +7,8 @@ import { Layout } from '@/components/layout';
 interface FormState {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName:string;
   isSignUp: boolean;
 }
 
@@ -16,7 +17,7 @@ export default function AuthPage() {
   const supabase = createClient();
 
   const [isVisible, setIsVisible] = useState(false);
-  const [form, setForm] = useState<FormState>({ email: '', password: '', name:'', isSignUp: false });
+  const [form, setForm] = useState<FormState>({ email: '', password: '', firstName:'', lastName:'', isSignUp: false });
   const [agree, setAgree] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -26,14 +27,39 @@ export default function AuthPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fullName = e.target.value.trim();
+    const nameParts = fullName.split(" ");
+    
+    setForm({
+      ...form,
+      firstName: nameParts[0] || "",
+      lastName: nameParts.slice(1).join(" ") || "", // Joins remaining words as lastName
+    });
+  };
+  
+
   const handleAuth = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     if (!agree) return alert('You must agree to the Terms and Privacy Policy.');
 
     let result;
     if (form.isSignUp) {
-      result = await supabase.auth.signUp({email: form.email, password: form.password, options:{ data: {name: form.name}}});
-    } else {
+      result=await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      });
+  
+      const user = result?.data?.user;
+  
+      if (user) {
+        await supabase.from('profiles').insert({
+          id: user.id,
+          first_name: form.firstName,
+          last_name: form.lastName,
+        })
+    }}
+    else {
       result = await supabase.auth.signInWithPassword({ email: form.email, password: form.password });
     }
     if (result.error) {
@@ -69,15 +95,15 @@ export default function AuthPage() {
                 type="name"
                 name="name"
                 placeholder="Enter your full name"
-                value={form.name}
-                onChange={handleChange}
+                value={`${form.firstName} ${form.lastName}`.trim()}
+                onChange={handleNameChange}
                 required
                 className="w-full px-4 py-1 mt-1 border rounded-2xl dark:bg-zinc-700 dark:text-white focus:ring focus:ring-teal-500"
               />
             </div>:''}
             <div>
               <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">Email Address <span className="text-red-500">*</span></label>
-              <input
+              <input 
                 type="email"
                 name="email"
                 placeholder="Enter your email"
@@ -104,7 +130,7 @@ export default function AuthPage() {
                 </button>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            {form.isSignUp? <div className="flex items-center space-x-2">
               <input
                 required
                 type="checkbox"
@@ -117,7 +143,7 @@ export default function AuthPage() {
                 <a href="/terms" className="text-teal-500 hover:underline"> Terms</a> &amp;
                 <a href="/privacy" className="text-teal-500 hover:underline"> Privacy Policy</a>
               </span>
-            </div>
+            </div>:''}
             <button type="submit" className="w-full px-4 py-2 text-white bg-pink-500 dark:bg-pink-600 rounded-full hover:bg-pink-600 dark:hover:bg-pink-700">
               {form.isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
