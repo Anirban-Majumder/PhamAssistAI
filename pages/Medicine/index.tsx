@@ -252,8 +252,8 @@ export default function MedicineSearch() {
                       <div className="flex gap-6">
                         <div className="w-32 h-32 bg-muted rounded-lg overflow-hidden">
                           <img
-                            src={medicine.imgLink || "/placeholder.svg"}
-                            alt={medicine.name }
+                            src={medicine.imgLink.includes("https") ? medicine.imgLink : "/placeholder.jpg"}
+                            alt={medicine.name}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -261,7 +261,7 @@ export default function MedicineSearch() {
                             <div className="space-y-1">
                             <div className="flex justify-between">
                                 <span>
-                            <h3 className="text-lg font-semibold">{medicine.item }</h3>
+                            <h3 className="text-lg font-semibold">{medicine.item}</h3>
                             <p className="text-sm text-muted-foreground">Pharmacy: {medicine.name}</p>
                             </span>
                             <span>{medicine.deliveryTime}</span>

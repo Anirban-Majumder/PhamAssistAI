@@ -101,7 +101,7 @@ export default function BuyPage() {
                         <div className="p-6">
                             <div className="aspect-square relative mb-4">
                                 <img
-                                    src={medicine.imgLink || "/placeholder.svg"}
+                                    src={medicine.imgLink || "/placeholder.jpg"}
                                     alt={medicine.item}
                                     className="object-contain w-full h-full"
                                     loading="lazy"
