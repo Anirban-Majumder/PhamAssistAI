@@ -1,14 +1,19 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/component";
+import { SessionContext } from "@/lib/supabase/usercontext";
 
 export default function ImageUpload() {
+  const supabase = createClient();
+  const session = useContext(SessionContext);
   const [isOpen, setIsOpen] = useState(false);
   const [isManualOpen, setIsManualOpen] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [medicineName, setMedicineName] = useState("");
   const [duration, setDuration] = useState("");
   const [time, setTime] = useState("");
@@ -18,11 +23,56 @@ export default function ImageUpload() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
+      setSelectedFile(file); // Save file to state; do not upload yet.
       const reader = new FileReader();
       reader.onload = (e) => setImage(e.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
+
+  async function uploadToPrescriptionBucket(file: File) {
+    if (!session?.user?.id) {
+      console.error("User session not found.");
+      return;
+    }
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("prescription")
+      .upload(`${session.user.id}/${file.name}`, file);
+
+    if (uploadError) {
+      console.error("Error uploading file to storage:", uploadError);
+      return;
+    }
+    const fullUrl = `https://xckjeaabdidbmwnzqukp.supabase.co/storage/v1/object/public/${uploadData?.fullPath}`;
+
+    const { data: profileData, error: profileError } = await supabase
+      .from("profile")
+      .select("prescriptions")
+      .eq("user_id", session.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("Error fetching profile data:", profileError);
+      return;
+    }
+
+    const currentPrescriptions = profileData?.prescriptions || "";
+    const newPrescriptions = currentPrescriptions
+      ? `${fullUrl}*${currentPrescriptions}`
+      : fullUrl;
+
+    const { data: updateData, error: updateError } = await supabase
+      .from("profile")
+      .update({ prescriptions: newPrescriptions })
+      .eq("user_id", session.user.id);
+
+    if (updateError) {
+      console.error("Error updating profile with new prescription:", updateError);
+    } else {
+      console.log("File uploaded and profile updated successfully:", updateData);
+    }
+  }
 
   const handleCameraCapture = async () => {
     try {
@@ -38,6 +88,8 @@ export default function ImageUpload() {
 
       const capturedImage = canvas.toDataURL("image/jpeg");
       setImage(capturedImage);
+      const blob = await fetch(capturedImage).then((res) => res.blob());
+      setSelectedFile(new File([blob], "captured-image.jpg", { type: "image/jpeg" }));
 
       stream.getTracks().forEach((track) => track.stop());
     } catch (error) {
@@ -51,15 +103,9 @@ export default function ImageUpload() {
   };
 
   const handleSave = async () => {
-    if (!image) return
-    const response = await fetch("/api/processimg", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image }),
-    })
-    if (response.ok) {
-      router.push("/Profile");
-    }
+    if (!selectedFile) return;
+    await uploadToPrescriptionBucket(selectedFile);
+    router.push("/Profile");
   };
 
   return (
@@ -79,6 +125,7 @@ export default function ImageUpload() {
                 onClick={() => {
                   setIsOpen(false);
                   setImage(null);
+                  setSelectedFile(null);
                 }}
                 className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
               >
@@ -121,13 +168,16 @@ export default function ImageUpload() {
                 </div>
                 <div className="flex justify-center space-x-4">
                   <button
-                  onClick={handleSave}
+                    onClick={handleSave}
                     className="bg-success text-success-foreground hover:bg-success/90 rounded-lg px-4 py-2 transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-success focus:ring-opacity-50"
                   >
                     Save
                   </button>
                   <button
-                    onClick={() => setImage(null)}
+                    onClick={() => {
+                      setImage(null);
+                      setSelectedFile(null);
+                    }}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg px-4 py-2 transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-opacity-50"
                   >
                     Cancel
