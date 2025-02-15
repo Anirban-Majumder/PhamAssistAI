@@ -17,23 +17,24 @@ export default function Dashboard() {
         setFirstName("User")
         return;
       }
-      const email = session.user.email || "";
-      const emailName = email.split("@")[0]; // Extract part before '@'
 
       if (session.user.app_metadata.provider === "google") {
-        // Google login users get name from email
-        setFirstName(emailName);
+        const { data, error } = await supabase
+          .from('identities')
+          .select(`
+    display_name:identity_data->>name,
+    ...users!inner()
+  `)
+          .eq('users.id', session.user.id);
+        console.log('Display Name:', data);
       } else {
-        // Try to fetch first name from profiles table
         const { data, error } = await supabase
           .from("profiles")
           .select("first_name")
           .eq("id", session.user.id)
           .single();
-
-        if (error || !data) {
+        if (error) {
           console.warn("No profile found, using email prefix:", error?.message);
-          setFirstName(emailName); // Use email prefix as fallback
         } else {
           setFirstName(data.first_name);
         }
