@@ -3,10 +3,11 @@
 import { useState,useContext } from "react";
 import { createClient } from "@/lib/supabase/component"; 
 import { SessionContext } from "@/lib/supabase/usercontext";
+import { Input } from "@/components/ui/input";
 
-export default function Symptom() {
+
+export default function addSymptomModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const [symptom, setSymptom] = useState<string[]>([]);
   const [date, setDate] = useState<string>("");
   const [input, setInput] = useState<string>("");
 
@@ -16,10 +17,6 @@ export default function Symptom() {
 
   // Function to save data to Supabase
   const handleSave = async () => {
-    if (input) {
-        setSymptom([ ...symptom,input]);
-        setInput("");}
-
     if (!session || !session.user) {
       alert("You must be logged in to save symptoms.");
       return;
@@ -36,7 +33,7 @@ export default function Symptom() {
   }
 
   const currentsymptoms = profileData?.symptoms || "";
-  const newsymptoms = `${symptom}*${currentsymptoms}`
+  const newsymptoms = `${input}*${currentsymptoms}`
   
 
   const { data: updateData, error: updateError } = await supabase
@@ -48,7 +45,10 @@ export default function Symptom() {
       console.error("Error updating profile data:", updateError);
       return;
     }   
-    else{console.log("Symptoms added successfully");}
+    else{
+      console.log("Symptoms added successfully");
+      window.location.reload();
+    }
   };
 
   return (
@@ -70,7 +70,7 @@ export default function Symptom() {
 
             {/* Symptoms Input */}
             <div className="flex space-x-2">
-              <input
+              <Input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -83,7 +83,7 @@ export default function Symptom() {
             
 
             {/* Date Picker */}
-            <input
+            <Input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}

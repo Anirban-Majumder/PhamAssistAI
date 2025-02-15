@@ -1,20 +1,18 @@
 "use client"
 
 import { useEffect, useState, useContext } from "react";
-import { useRouter } from "next/router";
 import ImageUpload from "@/components/img-upload";
 import Symptom from "@/components/symptom-upload";
 import { createClient } from "@/lib/supabase/component";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { SessionContext } from "@/lib/supabase/usercontext";
-import { ImageIcon, ChevronRight, User } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 
 interface Medicine {
-  id?: number; // Optional if your DB returns an id field.
+  id?: number;
   name: string;
   dosage: string;
   duration: string;
@@ -25,7 +23,6 @@ export default function MedicalProfile() {
   const session = useContext(SessionContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [medicines, setMedicines] = useState<Medicine[]>([]);
-  const router = useRouter();
   const [Name, setName] = useState<string | null>(null);
   const [email, setemail] = useState<string | null>(null);
   const [symptoms, setsymptoms] = useState<any[]>(["--", "--", "--"]);
@@ -83,13 +80,6 @@ export default function MedicalProfile() {
     fetchUserName();
     fetchMeds();
   }, [session?.user?.id]);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (router.query.code) {
-      router.replace(router.pathname, undefined, { shallow: true });
-    }
-  }, [router.isReady, router.query.code, console]);
 
   return (
     <Layout>

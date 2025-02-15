@@ -32,7 +32,13 @@ export default function App({ Component, pageProps }: AppProps) {
       attribute="class"
       defaultTheme="system"
       enableSystem>
-      <CopilotKit runtimeUrl="/api/copilotkit">
+      <CopilotKit 
+      runtimeUrl="/api/copilotkit" 
+      publicApiKey="ck_pub_24deaca9abcf4242366fcfbb0d615ef0"
+      guardrails_c={{
+        invalidTopics: ["politics", "explicit-content", "harmful-content"],
+        validTopics: ["medical", "general-assistance"],
+      }}>
         <Component {...pageProps} />
       </CopilotKit>
     </ThemeProvider>

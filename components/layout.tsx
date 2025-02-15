@@ -45,7 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       }
       const { data: medicinesData, error: medicinesError } = await supabase
         .from("medicine")
-        .select("name, dosage, duration")
+        .select("name, dosage, duration, idmed")
         .eq("user_id", session.user.id);
 
       if (medicinesError) {
@@ -120,7 +120,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <main className="container mx-auto px-4 py-8 h-full overflow-hidden">
         <CopilotPopup
           instructions={
-            "You are an AI assistant for a PharmAssistAI that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely."
+            "You are an AI assistant for a PharmAssistAI that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely. Use the available actions you have to fetch medicine details from the idmed provieded in userdata."
           }
           labels={{
             title: "ChatBot",
