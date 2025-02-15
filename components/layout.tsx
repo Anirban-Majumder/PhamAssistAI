@@ -5,9 +5,12 @@ import {
   IconPill,
   IconDashboard,
   IconLogin,
-  IconBrandGithub,
+  IconSettings,
 } from "@tabler/icons-react";
 import type React from "react";
+import "@copilotkit/react-ui/styles.css";
+import { CopilotPopup } from "@copilotkit/react-ui";
+
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const dockItems = [
@@ -40,11 +43,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       href: "/signin",
     },
     {
-      title: "GitHub",
+      title: "Settings",
       icon: (
-        <IconBrandGithub className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "https://github.com",
+      href: "/Settings",
     },
   ];
 
@@ -54,7 +57,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ThemeToggle />
       </div>
       <main className="container mx-auto px-4 py-8 h-full overflow-hidden">
+      <CopilotPopup
+                instructions={"You are an AI assistant for a Med-Aid app that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely."}
+                labels={{
+                  title: "ChatBot",
+                  initial: "Hello there, How can I help You today?",
+                }}
+      />
         {children}
+
       </main>
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
         <FloatingDock items={dockItems} />
