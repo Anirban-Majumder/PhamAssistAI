@@ -22,22 +22,12 @@ const SignUp = () => {
     if (error) alert(error.message);
     else router.push("/Dashboard");
   };
-  const getURL = () => {
-    let url =
-      process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
-      process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
-      'http://localhost:3000/'
-    // Make sure to include `https://` when not localhost.
-    url = url.startsWith('http') ? url : `https://${url}`
-    // Make sure to include a trailing `/`.
-    url = url.endsWith('/Dashboard') ? url : `${url}/Dashboard`
-    return url
-  }
+  
   const handleGoogleSignIn = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: getURL(), // Make sure this is correct
+      options: { 
+        redirectTo: `${window.location.protocol}//${window.location.host}/Dashboard`
       },
     });
     if (error) alert(error.message);
