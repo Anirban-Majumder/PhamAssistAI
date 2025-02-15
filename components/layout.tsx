@@ -47,13 +47,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       ),
       href: "/Labs",
     },
-    {
-      title:"Appointment",
-      icon: (
-        <IconStethoscope className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/Appointment",
-    },
     (!isLoggedIn?{
       title: "Sign In",
       icon: (
