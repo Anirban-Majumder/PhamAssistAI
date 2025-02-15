@@ -76,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </div>
       <main className="container mx-auto px-4 py-8 h-full overflow-hidden">
       <CopilotPopup
-                instructions={"You are an AI assistant for a Med-Aid app that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely."}
+                instructions={"You are an AI assistant for a  PharmAssistAI that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely."}
                 labels={{
                   title: "ChatBot",
                   initial: "Hello there, How can I help You today?",

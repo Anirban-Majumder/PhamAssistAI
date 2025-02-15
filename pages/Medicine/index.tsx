@@ -95,7 +95,7 @@ export default function MedicineSearch() {
     }
     
     try {
-      const response = await fetch(`/api/medSearch?name=${encodeURIComponent(search)}`)
+      const response = await fetch(`/api/medPriceSearch?name=${encodeURIComponent(search)}`)
       const data = await response.json()
       setSuggestions(data)
       setShowSuggestions(true)
@@ -124,7 +124,7 @@ export default function MedicineSearch() {
       setMedicines([])
 
       try {
-        const apiUrl = `/api/medDetails?name=${encodeURIComponent(name)}&pack=${encodeURIComponent(pack)}&pin=${pin}`
+        const apiUrl = `/api/medPriceDetails?name=${encodeURIComponent(name)}&pack=${encodeURIComponent(pack)}&pin=${pin}`
         const response = await fetch(apiUrl)
 
         if (!response.body) throw new Error("Failed to get response stream")
