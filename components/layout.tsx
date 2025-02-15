@@ -3,16 +3,19 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import {
   IconHome,
   IconPill,
-  IconDashboard,
   IconLogin,
-  IconSettings,
+  IconUser,
   IconLogout,
+  IconMicroscope,
+  IconStethoscope
 } from "@tabler/icons-react";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import "@copilotkit/react-ui/styles.css";
 import { CopilotPopup } from "@copilotkit/react-ui";
 import { SessionContext } from '@/lib/supabase/usercontext';
+import { title } from "process";
+import { Icon } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const session = useContext(SessionContext);
@@ -24,11 +27,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const dockItems = [
     {
-      title: "Home",
+      title: "Dashboard",
       icon: (
         <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/",
+      href: "/Dashboard",
     },
     {
       title: "Medicine",
@@ -38,11 +41,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
       href: "/Medicine",
     },
     {
-      title: "Dashboard",
+      title:"Lab Tests",
       icon: (
-        <IconDashboard className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconMicroscope className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/Dashboard",
+      href: "/LabTests",
+    },
+    {
+      title:"Appointment",
+      icon: (
+        <IconStethoscope className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/Appointment",
     },
     (!isLoggedIn?{
       title: "Sign In",
@@ -58,12 +68,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       href: "/SignOut"
     }),
     {
-      title: "Settings",
+      title: "Profile",
       icon: (
-        <IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+        <IconUser className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/Settings",
-    },
+      href: "/Profile",
+    }
   ];
 
   return (

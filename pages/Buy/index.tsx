@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
-import Button from "@/components/ui/button"
+import Button from "@/components/ui/button2"
 import { MapPin } from "lucide-react"
 import { Layout } from "@/components/layout"
 import Link from "next/link";

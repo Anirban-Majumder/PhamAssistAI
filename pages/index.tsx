@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout"
-import  Button  from "@/components/ui/button"
+import  Button  from "@/components/ui/button2"
 import Link from "next/link"
 
 export default function Home() {
