@@ -40,6 +40,45 @@ export default function Labsearch() {
   const searchRef = useRef<HTMLDivElement>(null)
   const skipFetchSuggestions = useRef(false)
 
+  const fetchPinFromCoords = async (lat: number, lon: number) => {
+    console.log(`Latitude: ${lat}, Longitude: ${lon}`);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+      );
+      const data = await response.json();
+      if (data.address.postcode) {
+        setPin(data.address.postcode);
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+    }
+  };
+
+  const getUserLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        fetchPinFromCoords(latitude, longitude);
+        setLoading(false);
+      },
+      () => {
+        console.warn("User denied location access. Using default PIN.");
+        setLoading(false);
+      }
+    );
+  };
+
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
   // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -103,6 +142,7 @@ export default function Labsearch() {
   return (
     <Layout>
       <div className="container mx-auto p-4 space-y-6 h-full overflow-y-auto scrollbar-hide">
+        <h1 className="text-2xl font-semibold">Search for Labs</h1>
         <div className="flex items-center gap-4">
           <div className="relative flex-1" ref={searchRef}>
             <div className="relative">
