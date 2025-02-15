@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/component';
+import { createClient } from '@/lib/supabase/component';
 import { Icon } from '@iconify/react';
 import { Layout } from "@/components/layout"
 

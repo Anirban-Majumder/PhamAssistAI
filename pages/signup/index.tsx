@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout";
-import { createClient } from "@/utils/supabase/component";
+import { createClient } from "@/lib/supabase/component";
 import { useRouter } from "next/router";
 import { Icon } from '@iconify/react';
 import React from "react";
