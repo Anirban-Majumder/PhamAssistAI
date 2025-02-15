@@ -1,3 +1,5 @@
+'use client';
+import React, { useContext, useEffect, useState } from "react";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -6,24 +8,63 @@ import {
   IconLogin,
   IconUser,
   IconLogout,
-  IconMicroscope,
-  IconStethoscope
+  IconMicroscope
 } from "@tabler/icons-react";
-import type React from "react";
-import { useContext, useEffect, useState } from "react";
 import "@copilotkit/react-ui/styles.css";
 import { CopilotPopup } from "@copilotkit/react-ui";
-import { SessionContext } from '@/lib/supabase/usercontext';
-import { title } from "process";
-import { Icon } from "lucide-react";
+import { SessionContext } from "@/lib/supabase/usercontext";
+import { useCopilotReadable } from "@copilotkit/react-core";
+import { createClient } from "@/lib/supabase/component";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const session = useContext(SessionContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const supabase = createClient();
+  // New state to hold the user's data.
+  const [userData, setUserData] = useState<{ profile: Record<string, any>; medicines: any[] }>({
+    profile: {},
+    medicines: []
+  });
 
   useEffect(() => {
     setIsLoggedIn(!!session);
   }, [session]);
+
+  // Fetch user's data on session change.
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!session?.user?.id) return;
+      const { data: profileData, error: profileError } = await supabase
+        .from("profile")
+        .select("first_name, last_name, symptoms")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+      }
+      const { data: medicinesData, error: medicinesError } = await supabase
+        .from("medicine")
+        .select("name, dosage, duration")
+        .eq("user_id", session.user.id);
+
+      if (medicinesError) {
+        console.error("Error fetching medicines:", medicinesError);
+      }
+      setUserData({
+        profile: profileData || {},
+        medicines: medicinesData || []
+      });
+    };
+
+    fetchUserData();
+  }, [session, supabase]);
+
+  // Call the hook at the top level with the userData state.
+  useCopilotReadable({
+    description: "This is the user's profile and medicines data. This data is used to provide personalized help and suggestions.",
+    value: userData
+  });
 
   const dockItems = [
     {
@@ -31,41 +72,43 @@ export function Layout({ children }: { children: React.ReactNode }) {
       icon: (
         <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/Dashboard",
+      href: "/Dashboard"
     },
     {
       title: "Medicine",
       icon: (
         <IconPill className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/Medicine",
+      href: "/Medicine"
     },
     {
-      title:"Lab Tests",
+      title: "Lab Tests",
       icon: (
         <IconMicroscope className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/Labs",
+      href: "/Labs"
     },
-    (!isLoggedIn?{
-      title: "Sign In",
-      icon: (
-        <IconLogin className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/SignIn"
-    }:{
-      title: "Sign Out",
-      icon: (
-        <IconLogout className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-      ),
-      href: "/SignOut"
-    }),
+    !isLoggedIn
+      ? {
+          title: "Sign In",
+          icon: (
+            <IconLogin className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+          ),
+          href: "/SignIn"
+        }
+      : {
+          title: "Sign Out",
+          icon: (
+            <IconLogout className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+          ),
+          href: "/SignOut"
+        },
     {
       title: "Profile",
       icon: (
         <IconUser className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/Profile",
+      href: "/Profile"
     }
   ];
 
@@ -75,15 +118,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ThemeToggle />
       </div>
       <main className="container mx-auto px-4 py-8 h-full overflow-hidden">
-      <CopilotPopup
-                instructions={"You are an AI assistant for a  PharmAssistAI that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely."}
-                labels={{
-                  title: "ChatBot",
-                  initial: "Hello there, How can I help You today?",
-                }}
-      />
+        <CopilotPopup
+          instructions={
+            "You are an AI assistant for a PharmAssistAI that scans prescriptions and provides medication info. Interpret prescriptions, offer detailed med info including dosages and precautions, and answer user queries in concise about their prescriptions and medications clearly and safely."
+          }
+          labels={{
+            title: "ChatBot",
+            initial: "Hello there, How can I help You today?"
+          }}
+        />
         {children}
-
       </main>
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
         <FloatingDock items={dockItems} />

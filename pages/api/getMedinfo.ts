@@ -40,7 +40,7 @@ export default async function handler(
     const algoliaData = await algoliaResponse.json();
 
     if (!algoliaData.hits || algoliaData.hits.length === 0) {
-      return res.status(404).json({ error: "No matching variant found" });
+      return res.status(200).json({ hits: [] });
     }
 
     return res.status(200).json(algoliaData);
