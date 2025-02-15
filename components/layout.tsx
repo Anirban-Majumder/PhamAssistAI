@@ -6,13 +6,22 @@ import {
   IconDashboard,
   IconLogin,
   IconSettings,
+  IconLogout,
 } from "@tabler/icons-react";
 import type React from "react";
+import { useContext, useEffect, useState } from "react";
 import "@copilotkit/react-ui/styles.css";
 import { CopilotPopup } from "@copilotkit/react-ui";
-
+import { SessionContext } from '@/lib/supabase/usercontext';
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const session = useContext(SessionContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(!!session);
+  }, [session]);
+
   const dockItems = [
     {
       title: "Home",
@@ -35,13 +44,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
       ),
       href: "/Dashboard",
     },
-    {
+    (!isLoggedIn?{
       title: "Sign In",
       icon: (
         <IconLogin className="h-full w-full text-neutral-500 dark:text-neutral-300" />
       ),
-      href: "/signin",
-    },
+      href: "/SignIn"
+    }:{
+      title: "Sign Out",
+      icon: (
+        <IconLogout className="h-full w-full text-neutral-500 dark:text-neutral-300" />
+      ),
+      href: "/SignOut"
+    }),
     {
       title: "Settings",
       icon: (

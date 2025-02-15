@@ -1,14 +1,16 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { Layout } from "@/components/layout";
+import { useContext } from "react";
+import { SessionContext } from "@/lib/supabase/usercontext";
 
 export default function Dashboard() {
+  const session = useContext(SessionContext);
   const router = useRouter();
 
   useEffect(() => {
     if (!router.isReady) return;
     if (router.query.code) {
-      // Replace the URL with no query params using Next.js router
       router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [router.isReady, router.query.code]);
@@ -16,7 +18,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center h-full">
-        <h1 className="text-4xl font-bold mb-4">Welcome to the Dashboard</h1>
+        <h1 className="text-4xl font-bold mb-4">Welcome to the Dashboard, {session?.user?.email || 'user'}!</h1>
       </div>
     </Layout>
   );
