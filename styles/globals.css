@@ -5,6 +5,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --muted: #f5f5f5;
+  --popover:#ceaaf1;
   --copilot-kit-primary-color: #ec4899;
   --copilot-kit-contrast-color: rgb(255 255 255);
   --copilot-kit-secondary-color: rgb(243 244 246);
@@ -17,10 +19,12 @@
   --copilot-kit-response-button-background-color: #fff;
 }
 
-.dark{
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --copilot-kit-primary-color: #c11a65;
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --muted: #333333;
+  --popover:#40364a;
+  --copilot-kit-primary-color: #c11a65;
   --copilot-kit-contrast-color: #ffffff;
   --copilot-kit-secondary-color: #3f3f46;
   --copilot-kit-secondary-contrast-color: #ffffff;
@@ -30,7 +34,7 @@
   --copilot-kit-scrollbar-color: rgba(221, 203, 203, 0.2);
   --copilot-kit-response-button-color: #ffffff;
   --copilot-kit-response-button-background-color: rgb(39 39 42);
-  }
+}
 
 
 body {

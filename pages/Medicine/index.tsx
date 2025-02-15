@@ -36,8 +36,8 @@ export default function MedicineSearch() {
   const [pin, setPin] = useState("700001") // Default pin code
   const [showSuggestions, setShowSuggestions] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const skipFetchSuggestions = useRef(false)
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -67,7 +67,11 @@ export default function MedicineSearch() {
   }, [])
 
   useEffect(() => {
-    console.log("Query changed:", query)
+    if (skipFetchSuggestions.current) {
+        skipFetchSuggestions.current = false
+        return
+      }
+
     const debounceTimer = setTimeout(() => {
       fetchSuggestions(query)
     }, 300)
@@ -120,7 +124,9 @@ export default function MedicineSearch() {
 
 
   const filteredMedicines = medicines.filter(
-    (med) => parseFloat(med.finalCharge) >= priceRange[0] && parseFloat(med.finalCharge) <= priceRange[1]
+    (med) => 
+        parseFloat(med.finalCharge) >= priceRange[0] &&
+        parseFloat(med.finalCharge) <= priceRange[1]
   )
 
   return (
@@ -139,7 +145,7 @@ export default function MedicineSearch() {
               />
             </div>
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg bg-neutral-200 dark:bg-neutral-800">
+              <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
                 <div className="p-1">
                   {suggestions.length === 0 ? (
                     <div className="px-2 py-1 text-sm text-muted-foreground">
@@ -151,6 +157,7 @@ export default function MedicineSearch() {
                         key={suggestion.medicineName }
                         className="px-2 py-1.5 hover:bg-muted rounded-sm cursor-pointer"
                         onClick={() => {
+                          skipFetchSuggestions.current = true
                           setQuery(suggestion.medicineName)
                           setShowSuggestions(false)
                           fetchMedicineDetails(suggestion.medicineName, suggestion.packSize)
