@@ -17,20 +17,11 @@ export default function Dashboard() {
         setFirstName("User");
         return;
       }
-
-      // Check if user is from Google provider
-      if (session.user.app_metadata.provider === "google") {
-        const googleDisplayName = session.user.user_metadata?.full_name?.split(" ")[0];
-        if (googleDisplayName) {
-          setFirstName(googleDisplayName);
-          return;
-        }
-      } else {
         // Otherwise, fetch from 'profile' table
         const { data, error } = await supabase
           .from("profile")
           .select("first_name")
-          .eq("id", session.user.id)
+          .eq("user_id", session.user.id)
           .single();
 
         if (error || !data) {
@@ -39,12 +30,11 @@ export default function Dashboard() {
         } else {
           setFirstName(data.first_name);
         }
-      }
+      
     };
 
     fetchUserFirstName();
-  }, [session?.user?.id, session?.user?.app_metadata, session?.user?.user_metadata, supabase]);
-
+   }, [session?.user?.id, session?.user?.app_metadata, session?.user?.user_metadata, supabase]);
   // Handle query param 'code' from OAuth callback
   useEffect(() => {
     if (!router.isReady) return;
@@ -52,6 +42,50 @@ export default function Dashboard() {
       router.replace(router.pathname, undefined, { shallow: true });
     }
   }, [router.isReady, router.query.code, router]);
+
+  useEffect(() => {
+    if (firstName === "User") {
+      const setUserFirstName = async () => {
+        if (!session?.user?.id) {
+          setFirstName("User");
+          return;
+        }
+
+        // Check if user is from Google provider
+        if (session.user.app_metadata.provider === "google") {
+          const fullName = session.user.user_metadata?.full_name || "User";
+          const names = fullName.split(" ");
+          const firstNameFromGoogle = names[0];
+          const lastNameFromGoogle = names.slice(1).join(" ") || "Lastname";
+
+          // Try to fetch the profile
+          const { data, error } = await supabase
+            .from("profile")
+            .select("first_name")
+            .eq("user_id", session.user.id)
+            .single();
+
+          if (error || !data) {
+            // No profile exists, so create one
+            const { error: insertError } = await supabase
+              .from("profile")
+              .insert({
+                user_id: session.user.id,
+                first_name: firstNameFromGoogle,
+                last_name: lastNameFromGoogle,
+              });
+            if (insertError) {
+              console.error("Error inserting profile:", insertError.message);
+            } else {
+              setFirstName(firstNameFromGoogle);
+            }
+          }
+        }
+      };
+
+      setUserFirstName();
+    }
+  }, [firstName, session, supabase]);
 
   return (
     <Layout>

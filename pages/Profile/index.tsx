@@ -26,7 +26,6 @@ export default function MedicalProfile() {
     const [medicines, setMedicines] = useState<Medicine[]>([]);
     const router = useRouter();
     const [Name, setName] = useState<string | null>(null);
-    const [phno, setphno] = useState<string | null>(null);
     const [email, setemail] = useState<string | null>(null);
 
     useEffect(() => {
@@ -42,15 +41,14 @@ export default function MedicalProfile() {
           if (googleDisplayName) {
             setName(googleDisplayName);
           }
-          setphno(null);
           setemail(session.user.email||null);
         } 
   
         else {
           const { data, error } = await supabase
             .from("profile")
-            .select("first_name,last_name,phone,email_address")
-            .eq("id", session.user.id)
+            .select("first_name,last_name")
+            .eq("user_id", session.user.id)
             .single();
             if (error || !data) {
               console.warn("No profile found, using email prefix:", error?.message);
@@ -58,7 +56,6 @@ export default function MedicalProfile() {
             } 
             else {
             setName(data.first_name+" "+data.last_name);
-            setphno(data.phone);
             setemail(session.user.email||null);
           }
         }
@@ -112,10 +109,6 @@ export default function MedicalProfile() {
         {/* Contact Information */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Contact Information:</h2>
-          <div className="space-y-2">
-            <Label className="text-xl">Phone:</Label>
-            <div className="text-l">{phno}</div>
-          </div>
           <div className="space-y-2">
             <Label className="text-xl">Email:</Label>
             <div className="text-l">{email}</div>

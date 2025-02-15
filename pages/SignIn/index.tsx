@@ -53,7 +53,7 @@ export default function AuthPage() {
   
       if (user) {
         await supabase.from('profile').insert({
-          id: user.id,
+          user_id: user.id,
           first_name: form.firstName,
           last_name: form.lastName,
         })
