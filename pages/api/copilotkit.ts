@@ -30,7 +30,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const Response = await fetch(
               `https://crm.frankrosspharmacy.com/api/v8/customer/cities/13/web/variants/${medid}`
             );
-        
+            
             if (!Response.ok) {
               return 
             }

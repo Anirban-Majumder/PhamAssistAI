@@ -7,6 +7,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/component";
 import { SessionContext } from "@/lib/supabase/usercontext";
 import { Input } from "@/components/ui/input";
+import OCRModal from "./medicine-input";
 
 export default function ImageUpload() {
   const supabase = createClient();
@@ -15,15 +16,16 @@ export default function ImageUpload() {
   const [isManualOpen, setIsManualOpen] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [ocrImgUrl, setOcrImgUrl] = useState<string | null>(null); // New state for OCR modal URL
   const [medicineName, setMedicineName] = useState("");
   const [duration, setDuration] = useState("");
   const [time, setTime] = useState("");
   const [idmed, setIdmed] = useState("");
-  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null)
-  const skipFetchSuggestions = useRef(false)
+  const searchRef = useRef<HTMLDivElement>(null);
+  const skipFetchSuggestions = useRef(false);
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,7 +38,7 @@ export default function ImageUpload() {
     }
   };
 
-  async function uploadToPrescriptionBucket(file: File) {
+  async function uploadToPrescriptionBucket(file: File): Promise<string | undefined> {
     if (!session?.user?.id) {
       console.error("User session not found.");
       return;
@@ -77,11 +79,13 @@ export default function ImageUpload() {
       console.error("Error updating profile with new prescription:", updateError);
     } else {
       console.log("File uploaded and profile updated successfully:", updateData);
+      // Clear preview states
       setImage(null);
       setSelectedFile(null);
       setIsOpen(false);
       setIsManualOpen(false);
-      window.location.reload();
+      // Return the URL for OCR processing.
+      return fullUrl;
     }
   }
 
@@ -110,44 +114,41 @@ export default function ImageUpload() {
 
   const fetchSuggestions = useCallback(async (search: string) => {
     if (!search) {
-      setSuggestions([])
-      return
+      setSuggestions([]);
+      return;
     }
 
     try {
-      const response = await fetch(`/api/getMedinfo?name=${encodeURIComponent(search)}`)
-      const data = await response.json()
-      setSuggestions(data.hits)
-      setShowSuggestions(true)
+      const response = await fetch(`/api/getMedinfo?name=${encodeURIComponent(search)}`);
+      const data = await response.json();
+      setSuggestions(data.hits);
+      setShowSuggestions(true);
     } catch (error) {
-      console.error("Failed to fetch suggestions:", error)
-      setSuggestions([])
+      console.error("Failed to fetch suggestions:", error);
+      setSuggestions([]);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false)
+        setShowSuggestions(false);
       }
     }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (skipFetchSuggestions.current) {
-      skipFetchSuggestions.current = false
-      return
+      skipFetchSuggestions.current = false;
+      return;
     }
-
     const debounceTimer = setTimeout(() => {
-      fetchSuggestions(medicineName)
-    }, 300)
-
-    return () => clearTimeout(debounceTimer)
-  }, [medicineName, fetchSuggestions])
+      fetchSuggestions(medicineName);
+    }, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [medicineName, fetchSuggestions]);
 
   const handleDataSave = async () => {
     if (!medicineName || !duration || !time) return;
@@ -169,18 +170,21 @@ export default function ImageUpload() {
     if (updateError) {
       console.error("Error updating meds:", updateError);
     } else {
-      console.log("Updates meds successfully:", updateData);
+      console.log("Updated meds successfully:", updateData);
     }
-
     setIsManualOpen(false);
     setIsOpen(false);
-    window.location.reload();
+    // You can optionally trigger a refresh or set state here.
+    // window.location.reload();
   };
 
   const handleSave = async () => {
     if (!selectedFile) return;
-    await uploadToPrescriptionBucket(selectedFile);
-    window.location.reload();
+    const uploadedUrl = await uploadToPrescriptionBucket(selectedFile);
+    if (uploadedUrl) {
+      // Instead of reloading, show the OCR modal with the uploaded image URL.
+      setOcrImgUrl(uploadedUrl);
+    }
   };
 
   return (
@@ -303,10 +307,10 @@ export default function ImageUpload() {
                             key={suggestion.name}
                             className="px-2 py-1.5 hover:bg-muted rounded-sm cursor-pointer"
                             onClick={() => {
-                              skipFetchSuggestions.current = true
-                              setMedicineName(suggestion.name)
-                              setShowSuggestions(false)
-                              setIdmed(suggestion.id)
+                              skipFetchSuggestions.current = true;
+                              setMedicineName(suggestion.name);
+                              setShowSuggestions(false);
+                              setIdmed(suggestion.id);
                             }}
                           >
                             <div className="text-sm font-medium">{suggestion.name}</div>
@@ -344,6 +348,9 @@ export default function ImageUpload() {
           </div>
         </div>
       )}
+
+      {/* Render the OCRModal after a successful upload */}
+      {ocrImgUrl && <OCRModal imgUrl={ocrImgUrl} />}
     </>
   );
 }
