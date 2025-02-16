@@ -17,10 +17,10 @@ import { useCopilotReadable } from "@copilotkit/react-core";
 import { createClient } from "@/lib/supabase/component";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const supabase = createClient();
   const session = useContext(SessionContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const supabase = createClient();
-  // New state to hold the user's data.
+  const [firstname, setfirstname] = useState<string | null>("there");
   const [userData, setUserData] = useState<{ profile: Record<string, any>; medicines: any[] }>({
     profile: {},
     medicines: []
@@ -39,6 +39,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         .select("first_name, last_name, symptoms")
         .eq("user_id", session.user.id)
         .single();
+
+      setfirstname(profileData?.first_name);
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
@@ -124,7 +126,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }
           labels={{
             title: "ChatBot",
-            initial: "Hello there, How can I help You today?"
+            initial: `Hello ${firstname}, How can I help You today?`
           }}
         />
         {children}
