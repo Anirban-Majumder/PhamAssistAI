@@ -27,7 +27,7 @@ export default function MedicineDetails() {
   }, [id, medicineVariant])
 
   if (!medicineVariant) {
-    return <div>Loading...</div>
+    return <div>Loading.....</div>
   }
 
   return (
