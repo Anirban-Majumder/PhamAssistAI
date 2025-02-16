@@ -12,10 +12,11 @@ import { SessionContext } from "@/lib/supabase/usercontext";
 import { ImageIcon } from "lucide-react";
 
 interface Medicine {
-  id?: number;
+
   name: string;
   dosage: string;
   duration: string;
+  idmed?: number;
 }
 
 export default function MedicalProfile() {
@@ -83,7 +84,7 @@ export default function MedicalProfile() {
 
   return (
     <Layout>
-      <div className="w-full h-screen pb-20 overflow-auto p-6">
+      <div className="w-full h-screen pb-64 overflow-auto p-6  scrollbar-hide">
         <div className="flex flex-col items-center mb-6">
           <div className="w-24 h-24 rounded-full bg-pink-700 flex items-center justify-center mb-2">
             <span className="text-6xl text-white font-bold">
@@ -131,7 +132,7 @@ export default function MedicalProfile() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {medicines.map((medicine) => (
                       <div
-                        key={medicine.id || medicine.name}
+                        key={medicine.idmed || medicine.name}
                         className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow"
                       >
                         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -147,7 +148,9 @@ export default function MedicalProfile() {
                           <Link href={`/Buy?name=${medicine.name}&pin=null`}>Buy now</Link>
                         </Button>
                         <div className="mt-4">
-                          <Button>View Details</Button>
+                          <Button>
+                            <Link href={`/MedDetails?id=${medicine.idmed}`}>View Details</Link>
+                          </Button>
                         </div>
                       </div>
                     ))}
