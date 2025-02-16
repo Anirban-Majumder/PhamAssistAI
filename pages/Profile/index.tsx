@@ -129,31 +129,31 @@ export default function MedicalProfile() {
                     You have not added any medicine.
                   </p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {medicines.map((medicine) => (
-                      <div
-                        key={medicine.idmed || medicine.name}
-                        className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow"
-                      >
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                          {medicine.name}
-                        </h2>
-                        <p className="mt-2 text-gray-600 dark:text-gray-300">
-                          <span className="font-medium">Dosage:</span> {medicine.dosage}
-                        </p>
-                        <p className="mt-1 text-gray-600 dark:text-gray-300">
-                          <span className="font-medium">Duration:</span> {medicine.duration}
-                        </p>
-                        <Button>
-                          <Link href={`/Buy?name=${medicine.name}&pin=null`}>Buy now</Link>
-                        </Button>
-                        <div className="mt-4">
-                          <Button>
-                            <Link href={`/MedDetails?id=${medicine.idmed}`}>View Details</Link>
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex flex-wrap gap-6 overflow-x-auto">
+{medicines.map((medicine) => (
+  <div
+    key={medicine.idmed || medicine.name}
+    className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow min-w-[250px]"
+  >
+    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+      {medicine.name}
+    </h2>
+    <p className="mt-2 text-gray-600 dark:text-gray-300">
+      <span className="font-medium">Dosage:</span> {medicine.dosage}
+    </p>
+    <p className="mt-1 text-gray-600 dark:text-gray-300">
+      <span className="font-medium">Duration:</span> {medicine.duration}
+    </p>
+    <div className="flex gap-2 mt-2">
+      <Button>
+        <Link href={`/Buy?name=${medicine.name}&pin=null`}>Buy now</Link>
+      </Button>
+      <Button>
+        <Link href={`/MedDetails?id=${medicine.idmed}`}>View Details</Link>
+      </Button>
+    </div>
+  </div>
+))}
                   </div>
                 )}
               </div>
@@ -191,15 +191,18 @@ export default function MedicalProfile() {
 
           {/* Symptoms */}
           <div className="space-y-4 text-xl">
-            <div className="md:col-span-1 w-full space-y-4">
-              <h3 className="font-semibold">Symptoms: <Symptom/></h3>
-              <ul className="list-disc list-inside">
-                {symptoms.map((symptom: string, index: number) => (
-                  <li key={index}>{symptom}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
+  <div className="md:col-span-1 w-full space-y-4">
+    <h3 className="text-xl font-semibold flex items-center gap-2">
+      <span>Symptoms:</span>
+      <Symptom />
+    </h3>
+    <ul className="list-disc list-inside">
+      {symptoms.map((symptom: string, index: number) => (
+        <li key={index}>{symptom}</li>
+      ))}
+    </ul>
+  </div>
+</div>
         </div>
       </div>
     </Layout>

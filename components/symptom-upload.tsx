@@ -1,6 +1,7 @@
  "use client";
 
 import { useState,useContext } from "react";
+import { Icon } from "@iconify/react";
 import { createClient } from "@/lib/supabase/component"; 
 import { SessionContext } from "@/lib/supabase/usercontext";
 import { Input } from "@/components/ui/input";
@@ -52,19 +53,21 @@ export default function addSymptomModal() {
   };
 
   return (
+    <>
     <div>
       {/* Button to Open Modal */}
       <button
-        onClick={() => setIsOpen(true)}
-        className="bg-pink-500 dark:bg-pink-700 text-white px-4 py-2 rounded-full hover:bg-pink-600 dark:hover:bg-cyan-600 transition"
-      >+
-      </button>
+              onClick={() => setIsOpen(true)}
+              className="bg-[#db2777] text-primary-foreground hover:bg-[#db2777]/90 rounded-full p-3 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+            >
+              <Icon icon="mdi:plus" className="w-6 h-6" />
+            </button>
 
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex justify-center items-center">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4 text-pink-600 dark:text-cyan-400">
+            <h2 className="text-xl font-bold mb-4 text-zinc-600 dark:text-zinc-200">
               Enter Symptoms
             </h2>
 
@@ -100,7 +103,7 @@ export default function addSymptomModal() {
               </button>
               <button
                 onClick={handleSave}
-                className="bg-pink-500 dark:bg-cyan-500 text-white px-4 py-2 rounded hover:bg-pink-600 dark:hover:bg-cyan-600"
+                className="bg-pink-500 dark:bg-pink-700 text-white px-4 py-2 rounded hover:bg-pink-600 dark:hover:bg-pink-800"
               >
                 Save
               </button>
@@ -109,5 +112,6 @@ export default function addSymptomModal() {
         </div>
       )}
     </div>
+    </>
   );
 }
